@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Gloss</string>
+    <string name="text_clipping_service_label">Gloss Text Clipper</string>
+    <string name="accessibility_description">This provides accessibility features for speakers of a foreign language.</string>
 </resources>
