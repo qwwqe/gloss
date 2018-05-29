@@ -5,6 +5,8 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.content.Context;
 import android.graphics.Rect;
+import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -47,11 +49,12 @@ public class TextClippingService extends AccessibilityService {
                 continue;
 
             CharSequence text = node.getText();
-            if(text != null) {
+            if(text != null && text.length() > 0 && node.isVisibleToUser()) {
                 Log.v("TCS", "--> " + text.toString());
                 Rect bounds = new Rect();
                 node.getBoundsInScreen(bounds);
                 Log.v("TCS", "    " + bounds.toShortString());
+                Log.v("TCS", "    " + node.toString());
                 mTextNodes.add(node);
             }
 
@@ -59,6 +62,13 @@ public class TextClippingService extends AccessibilityService {
                 nodes.add(node.getChild(j));
             }
         }
+
+        Intent textBroadcastIntent = new Intent();
+        textBroadcastIntent.setAction("com.longlivemydog.rosie.TEXT_CLIP_NOTIFICATION");
+        textBroadcastIntent.putParcelableArrayListExtra("nodes", mTextNodes);
+        LocalBroadcastManager.getInstance(getApplicationContext())
+                .sendBroadcast(textBroadcastIntent);
+
     }
 
     @Override
