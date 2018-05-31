@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -128,25 +129,9 @@ public class FloatingDictService extends Service {
         resetState();
 
         mGlossingView = LayoutInflater.from(FloatingDictService.this).inflate(R.layout.gloss_overlay, null, false);
-//        mGlossingView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-//            @Override
-//            public void onFocusChange(View v, boolean hasFocus) {
-//                setState(STATE_FLOATING);
-//            }
-//        });
 
         FrameLayout containerView = mGlossingView.findViewById(R.id.glossing_layout_container);
-        //mGlossingView.setOnSystemUiVisibilityChangeListener();
-//        mGlossingView.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch (View view, MotionEvent event) {
-//                Log.v("FAF", MotionEvent.actionToString(event.getAction()));
-//                if(event.getAction() == MotionEvent.ACTION_OUTSIDE) {
-//                    setState(STATE_FLOATING);
-//                }
-//                return false;
-//            }
-//        });
+
         containerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -161,6 +146,9 @@ public class FloatingDictService extends Service {
                 public void onClick(View v) {
                 }
             });
+
+            TextView textView = view.findViewById(R.id.text_line);
+            textView.setText(nodeInfo.getText());
 
             Rect nodeBounds = new Rect();
             nodeInfo.getBoundsInScreen(nodeBounds);
