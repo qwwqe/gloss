@@ -32,8 +32,20 @@ public class TextClippingService extends AccessibilityService {
     public void onAccessibilityEvent(AccessibilityEvent event) {
         Log.v("TCS", "onAccessibilityEvent()");
 
-        if(event.getText().size() != 1 || !event.getText().get(0).equals("GLOSS_REQUEST"))
+        if(event.getEventType() == AccessibilityEvent.TYPE_ANNOUNCEMENT) {
+            if(mTextNodes == null ||
+                    event.getText().size() != 1 ||
+                    !event.getText().get(0).equals("GLOSS_REQUEST"))
+                return;
+
+            Intent textBroadcastIntent = new Intent();
+            textBroadcastIntent.setAction("com.longlivemydog.rosie.TEXT_CLIP_NOTIFICATION");
+            textBroadcastIntent.putParcelableArrayListExtra("nodes", mTextNodes);
+            LocalBroadcastManager.getInstance(getApplicationContext())
+                    .sendBroadcast(textBroadcastIntent);
+
             return;
+        }
 
         mTextNodes = new ArrayList<>();
 
@@ -43,14 +55,15 @@ public class TextClippingService extends AccessibilityService {
             nodes.add(window.getRoot());
         }
 
+        int foo = 0;
         for(int i = 0; i < nodes.size(); i++) {
             AccessibilityNodeInfo node = nodes.get(i);
             if(node == null)
                 continue;
 
             CharSequence text = node.getText();
-            if(text != null && text.length() > 0 && node.isVisibleToUser()) {
-                Log.v("TCS", "--> " + text.toString());
+            if(text != null && text.length() > 0) {
+                //Log.v("TCS", "--> " + text.toString());
                 Rect bounds = new Rect();
                 node.getBoundsInScreen(bounds);
                 Log.v("TCS", "    " + bounds.toShortString());
@@ -61,13 +74,12 @@ public class TextClippingService extends AccessibilityService {
             for(int j = 0; j < node.getChildCount(); j++) {
                 nodes.add(node.getChild(j));
             }
+
+            foo = i;
         }
 
-        Intent textBroadcastIntent = new Intent();
-        textBroadcastIntent.setAction("com.longlivemydog.rosie.TEXT_CLIP_NOTIFICATION");
-        textBroadcastIntent.putParcelableArrayListExtra("nodes", mTextNodes);
-        LocalBroadcastManager.getInstance(getApplicationContext())
-                .sendBroadcast(textBroadcastIntent);
+        Log.v("DAD", foo + "");
+        Log.v("DAD 2", mTextNodes.size() + "");
 
     }
 
