@@ -1,5 +1,6 @@
 package com.longlivemydog.rosie.gloss;
 
+import android.accessibilityservice.AccessibilityService;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -17,6 +18,9 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityEventSource;
+import android.view.accessibility.AccessibilityManager;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -48,8 +52,7 @@ public class FloatingDictService extends Service {
 
     private ArrayList<AccessibilityNodeInfo> mTextNodes;
 
-    private boolean mGlossingEnabled;
-    private long mGlossingRefreshTime;
+    private AccessibilityManager mAccessibilityManager;
 
     public FloatingDictService() {
     }
@@ -107,6 +110,8 @@ public class FloatingDictService extends Service {
         mTextBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
         mTextBroadcastManager.registerReceiver(mTextBroadcastReceiver, intentFilter);
 
+        /** setup AccessibilityManager **/
+        mAccessibilityManager = (AccessibilityManager) this.getSystemService(ACCESSIBILITY_SERVICE);
     }
 
     @Override
@@ -216,7 +221,9 @@ public class FloatingDictService extends Service {
         @Override
         public boolean onSingleTapConfirmed(MotionEvent event) {
             setState(STATE_GLOSSING);
-            refreshTextOverlay();
+            AccessibilityEvent accessibilityEvent = AccessibilityEvent.obtain(AccessibilityEvent.TYPE_ANNOUNCEMENT);
+            accessibilityEvent.getText().add("GLOSS_REQUEST");
+            mAccessibilityManager.sendAccessibilityEvent(accessibilityEvent);
             return true;
         }
 
@@ -232,7 +239,6 @@ public class FloatingDictService extends Service {
             mFloatingViewParams.x = initialX + (int) (e2.getRawX() - initialRawX);
             mFloatingViewParams.y = initialY + (int) (e2.getRawY() - initialRawY);
             mWindowManager.updateViewLayout(mFloatingView, mFloatingViewParams);
-
             return true;
         }
     }
@@ -243,12 +249,7 @@ public class FloatingDictService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             mTextNodes = intent.getParcelableArrayListExtra("nodes");
-
-            if(mGlossingEnabled) {
-//                if(System.nanoTime() - mGlossingRefreshTime > 2.0e9) {
-//                    refreshTextOverlay();
-//                }
-            }
+            refreshTextOverlay();
 
             for(AccessibilityNodeInfo node : mTextNodes)
                 Log.v("TBR", "---> " + node.getText());

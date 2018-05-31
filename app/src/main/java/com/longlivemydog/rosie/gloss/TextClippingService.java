@@ -31,10 +31,10 @@ public class TextClippingService extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         Log.v("TCS", "onAccessibilityEvent()");
-//        AccessibilityNodeInfo nodeInfo = event.getSource();
-//        if(nodeInfo == null)
-//            return;
 
+        if(!event.getText().equals("GLOSS_REQUEST"))
+            return;
+        
         mTextNodes = new ArrayList<>();
 
         List<AccessibilityWindowInfo> windows = getWindows();
