@@ -147,8 +147,8 @@ public class FloatingDictService extends Service {
                 }
             });
 
-            TextView textView = view.findViewById(R.id.text_line);
-            textView.setText(nodeInfo.getText());
+            //TextView textView = view.findViewById(R.id.text_line);
+            //textView.setText(nodeInfo.getText());
 
             Rect nodeBounds = new Rect();
             nodeInfo.getBoundsInScreen(nodeBounds);
