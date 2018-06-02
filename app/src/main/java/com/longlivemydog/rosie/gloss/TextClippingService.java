@@ -58,8 +58,10 @@ public class TextClippingService extends AccessibilityService {
         int foo = 0;
         for(int i = 0; i < nodes.size(); i++) {
             AccessibilityNodeInfo node = nodes.get(i);
-            if(node == null)
+            if(node == null || !node.isVisibleToUser()) {
+                // node.refresh();
                 continue;
+            }
 
             CharSequence text = node.getText();
             if(text != null && text.length() > 0) {
